@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+    <form method="POST" action="/event">
+        <label for="swimmer">Choose a swimmer:</label>
+
+        <select name="swimmer" id="swimmer">
+
+            {% for swimmer in swimmers %}
+                <option value="{{ swimmer }}">{{ swimmer[0] }} - {{ swimmer[1] }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="hidden" name="timestamp" value="{{ selected_timestamp }}">
+        <p>
+            <input type="submit" value="Select">
+        </p>
+    </form>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+    <form method="POST" action="/event">
+        <label for="event">Choose an event:</label>
+
+        <select name="event" id="event">
+
+            {% for event in events %}
+                <option value="{{ event }}">{{ event[0] }} - {{ event[1] }}</option>
+            {% endfor %}
+
+        </select>
+        <p>
+            <input type="submit" value="Select">
+        </p>
+    </form>
+
+{% endblock %}

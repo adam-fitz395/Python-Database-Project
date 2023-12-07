@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+{% block body %}
+
+    <form method="POST" action="/swimmer">
+        <label for="timestamp">Choose a training session:</label>
+
+        <select name="timestamp" id="timestamp">
+
+            {% for ts in timestamps%}
+
+                <option value="{{ts}}">{{ ts }}</option>
+            
+            {% endfor %}
+
+        </select>
+        <p>
+            <input type="submit" value="Select">
+        </p>
+    </form>
+
+{% endblock %}
