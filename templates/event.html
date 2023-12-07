@@ -2,13 +2,13 @@
 
 {% block body %}
 
-    <form method="POST" action="/event">
+    <form method="POST" action="/chart">
         <label for="event">Choose an event:</label>
 
         <select name="event" id="event">
 
             {% for event in events %}
-                <option value="{{ event }}">{{ event[0] }} - {{ event[1] }}</option>
+                <option value="{{event}}">{{event[0]}} - {{event[1]}}</option>
             {% endfor %}
 
         </select>

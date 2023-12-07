@@ -3,7 +3,7 @@ from statistics import mean
 
 import hfpy_utils
 
-FOLDER = "swimdata/"
+FOLDER = "uploaded/"
 
 
 def convert2hundreths(timestring):

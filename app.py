@@ -1,3 +1,4 @@
+import ast
 from flask import Flask, render_template, request, session  # from module import Class.
 import DBcm
 
@@ -82,24 +83,80 @@ def get_event():
 @app.route("/chart", methods=["GET", "POST"])
 def display_chart():
     selected_events = request.form.get("event")
-    
-    global distance, stroke
     distance, stroke = eval(selected_events)
-    print(distance)
-    print(stroke)
     
-    SQL = """
-    SELECT times
-    FROM times
-    JOIN events ON times.event_id = events.event_id
-    JOIN swimmers ON times.swimmer_id = swimmers.swimmer_id
-    WHERE DATE(times.ts) = DATE(%s)
+    SQL1 = f"""
+    SELECT swimmer_id
+    FROM swimmers
+    WHERE name = "{swimmer_name}"
+    AND age = "{swimmer_age}"
+"""
+
+    with DBcm.UseDatabase(config) as db:
+        db.execute(SQL1)
+        swimmer_id_result = db.fetchall()  # Fetch the result
+
+    if swimmer_id_result:
+        swimmer_id = swimmer_id_result[0][0]  # Access the first element of the first row
+        print(f"Swimmer ID: {swimmer_id}")
+    else:
+        print("Swimmer not found.")
+        
+    print(swimmer_id)
+        
+    SQL2 = f"""
+    SELECT event_id
+    FROM events
+    WHERE distance = "{distance}"
+    AND event = "{stroke}"
     """
     
     with DBcm.UseDatabase(config) as db:
-        db.execute(SQL, (selected_timestamp,))
+        db.execute(SQL2)
+        event_id_result = db.fetchall()  # Fetch the result
+
+    if event_id_result:
+        event_id = event_id_result[0][0]  # Access the first element of the first row
+        print(f"Event ID: {event_id}")
+    else:
+        print("Event not found.")
+
+    SQL3 = f"""
+    SELECT times
+    FROM times
+    WHERE swimmer_id = {swimmer_id}
+    AND event_id = {event_id}
+    """
+
+    with DBcm.UseDatabase(config) as db:
+        db.execute(SQL3)
         chart_data = db.fetchall()
+        
     print(chart_data)
+    
+    time_values = [time_tuple[0] for time_tuple in chart_data]
+    
+    
+    the_converts = [swim_utils.convert2hundreths(time) for time in time_values]
+    
+    from_max = max(the_converts) + 50
+    
+     # Calculate the average time
+    average = sum(the_converts) / len(the_converts)
+    average_time_string = swim_utils.build_time_string(average)
+
+    time_values = list(reversed(time_values))
+    the_converts = list(reversed(the_converts))
+
+    data = [hfpy_utils.convert2range(n, 0, from_max, 0, 350) for n in the_converts]
+    
+    print (data)
+    
+    zipped_data = zip(the_converts, time_values)
+
+    return render_template("chart.html", average = average_time_string, data = zipped_data, t=time_values, c=data)
+
+
 
 
 
