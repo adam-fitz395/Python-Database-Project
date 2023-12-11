@@ -35,10 +35,10 @@ def get_swimmers_data(filename):
     with open(FOLDER + filename) as fh:
         data = fh.read()
     times = data.strip().split(",")
-    converts = []  # empty list
-    for t in times:
-        converts.append(convert2hundreths(t))
+    times_set = set(times)
+    converts = [convert2hundreths(t) for t in times_set]
     average = build_time_string(mean(converts))
+    return name, age, distance, stroke, times_set, converts, average
 
     return name, age, distance, stroke, times, converts, average
 

@@ -1,4 +1,3 @@
-import ast
 from flask import Flask, render_template, request, session  # from module import Class.
 import DBcm
 
@@ -120,26 +119,30 @@ def display_chart():
         print(f"Event ID: {event_id}")
     else:
         print("Event not found.")
+        
 
-    SQL3 = f"""
+    SQL3 = """
     SELECT times
     FROM times
-    WHERE swimmer_id = {swimmer_id}
-    AND event_id = {event_id}
+    WHERE swimmer_id = %s
+    AND event_id = %s
+    AND DATE(ts) = DATE(%s)
     """
 
     with DBcm.UseDatabase(config) as db:
-        db.execute(SQL3)
+        db.execute(SQL3, (swimmer_id, event_id, selected_timestamp))
         chart_data = db.fetchall()
+    
+    time_values = [time_tuple[0] for time_tuple in chart_data]
+    print(time_values)
+    
+    the_converts = [swim_utils.convert2hundreths(time) for time in time_values]
+    print(the_converts)
+    
+    from_max = max(the_converts) + 50
         
     print(chart_data)
     
-    time_values = [time_tuple[0] for time_tuple in chart_data]
-    
-    
-    the_converts = [swim_utils.convert2hundreths(time) for time in time_values]
-    
-    from_max = max(the_converts) + 50
     
      # Calculate the average time
     average = sum(the_converts) / len(the_converts)
@@ -150,15 +153,9 @@ def display_chart():
 
     data = [hfpy_utils.convert2range(n, 0, from_max, 0, 350) for n in the_converts]
     
-    print (data)
-    
-    zipped_data = zip(the_converts, time_values)
+    zipped_data = sorted(zip(the_converts, time_values))
 
     return render_template("chart.html", average = average_time_string, data = zipped_data, t=time_values, c=data)
-
-
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
